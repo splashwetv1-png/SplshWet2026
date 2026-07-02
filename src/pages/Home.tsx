@@ -531,7 +531,7 @@ function HomeSection({
 
       const response = await api.getVideoFeedPage({
         offset: reset ? 0 : videosRef.current.length,
-        limit: 10,
+        limit: 5,
       })
 
       setVideos((current) => (reset ? response.videos : [...current, ...response.videos]))
