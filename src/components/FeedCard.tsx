@@ -1,5 +1,5 @@
 import type { ContentRecord } from '../../shared/types'
-import { proxiedMediaUrl } from '@/utils/media'
+import { originalMediaUrl, proxiedMediaUrl } from '@/utils/media'
 
 type FeedCardProps = {
   item: ContentRecord
@@ -10,12 +10,24 @@ export default function FeedCard({ item }: FeedCardProps) {
   const typeLabel = 'standard media'
   const mediaUrl = proxiedMediaUrl(item.url_video)
   const posterUrl = proxiedMediaUrl(item.url_capa)
+  // Fallback URLs used if the proxy request fails in production
+  const fallbackMediaUrl = originalMediaUrl(item.url_video)
+  const fallbackPosterUrl = originalMediaUrl(item.url_capa)
 
   return (
     <article className="border border-zinc-800 bg-zinc-950 p-3">
       <div className="border border-zinc-800 bg-black p-2">
         {isImage ? (
-          <img src={mediaUrl} alt={item.descricao || 'splashwet content'} className="aspect-[9/16] w-full object-cover" />
+          <img
+            src={mediaUrl}
+            alt={item.descricao || 'splashwet content'}
+            className="aspect-[9/16] w-full object-cover"
+            onError={(e) => {
+              if (fallbackMediaUrl && e.currentTarget.src !== fallbackMediaUrl) {
+                e.currentTarget.src = fallbackMediaUrl
+              }
+            }}
+          />
         ) : (
           <video
             src={mediaUrl}
@@ -23,6 +35,17 @@ export default function FeedCard({ item }: FeedCardProps) {
             controls
             preload="metadata"
             className="aspect-[9/16] w-full bg-black object-cover"
+            onError={(e) => {
+              if (fallbackMediaUrl && e.currentTarget.src !== fallbackMediaUrl) {
+                e.currentTarget.src = fallbackMediaUrl
+              }
+            }}
+            onLoadStart={(e) => {
+              // If the poster proxy fails, fall back to the original cover URL
+              if (fallbackPosterUrl && !e.currentTarget.poster) {
+                e.currentTarget.poster = fallbackPosterUrl
+              }
+            }}
           />
         )}
       </div>

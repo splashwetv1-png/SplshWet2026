@@ -224,6 +224,8 @@ function VideoFeedCard({
 
   const mediaUrl = proxiedMediaUrl(item.url_video)
   const posterUrl = proxiedMediaUrl(item.url_capa)
+  // Fallback URL used if the proxy request fails in production
+  const fallbackMediaUrl = item.url_video ?? undefined
 
   useEffect(() => {
     const node = articleRef.current
@@ -279,6 +281,11 @@ function VideoFeedCard({
         muted={muted}
         loop
         className="relative z-[1] h-full w-full bg-transparent object-contain object-center"
+        onError={(e) => {
+          if (fallbackMediaUrl && e.currentTarget.src !== fallbackMediaUrl) {
+            e.currentTarget.src = fallbackMediaUrl
+          }
+        }}
         onLoadedMetadata={(event) => {
           setDuration(event.currentTarget.duration || 0)
         }}
@@ -364,6 +371,8 @@ function ContentTile({
   onClick?: () => void
 }) {
   const previewUrl = getCardPreviewUrl(item)
+  // Fallback: original unproxied URL for when the proxy request fails
+  const fallbackPreviewUrl = item.url_capa ?? item.url_video ?? undefined
   const accentClass = accent === 'pink' ? 'text-[#ff1e9d]' : 'text-[#00fff7]'
 
   return (
@@ -375,9 +384,29 @@ function ContentTile({
       <div className="aspect-square border-b border-zinc-800 bg-black">
         {previewUrl ? (
           isImageUrl(previewUrl) ? (
-            <img src={previewUrl} alt={item.descricao || 'Preview'} className="h-full w-full object-cover" />
+            <img
+              src={previewUrl}
+              alt={item.descricao || 'Preview'}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                if (fallbackPreviewUrl && e.currentTarget.src !== fallbackPreviewUrl) {
+                  e.currentTarget.src = fallbackPreviewUrl
+                }
+              }}
+            />
           ) : (
-            <video src={previewUrl} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <video
+              src={previewUrl}
+              muted
+              playsInline
+              preload="metadata"
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                if (fallbackPreviewUrl && e.currentTarget.src !== fallbackPreviewUrl) {
+                  e.currentTarget.src = fallbackPreviewUrl
+                }
+              }}
+            />
           )
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-zinc-600">No Preview</div>

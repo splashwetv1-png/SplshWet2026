@@ -3,7 +3,7 @@ import { EyeOff, Save } from 'lucide-react'
 import type { AlbumMediaItem, Category } from '../../shared/types'
 import CategoryChecklist from '@/components/CategoryChecklist'
 import ConfirmModal from '@/components/ConfirmModal'
-import { proxiedMediaUrl } from '@/utils/media'
+import { originalMediaUrl, proxiedMediaUrl } from '@/utils/media'
 
 type MediaReviewCardProps = {
   index: number
@@ -40,6 +40,9 @@ export default function MediaReviewCard({
   const [confirmSaveOpen, setConfirmSaveOpen] = useState(false)
   const mediaUrl = proxiedMediaUrl(item.sourceUrl)
   const posterUrl = proxiedMediaUrl(item.coverUrl)
+  // Fallback URLs used if the proxy request fails in production
+  const fallbackMediaUrl = originalMediaUrl(item.sourceUrl)
+  const fallbackPosterUrl = originalMediaUrl(item.coverUrl)
 
   return (
     <>
@@ -72,7 +75,16 @@ export default function MediaReviewCard({
         <div className="grid gap-5 lg:grid-cols-[minmax(0,360px),1fr]">
           <div className="border border-zinc-800 bg-black p-2">
             {item.mediaType === 'photo' ? (
-              <img src={mediaUrl} alt={`preview ${index + 1}`} className="h-[420px] w-full object-cover" />
+              <img
+                src={mediaUrl}
+                alt={`preview ${index + 1}`}
+                className="h-[420px] w-full object-cover"
+                onError={(e) => {
+                  if (fallbackMediaUrl && e.currentTarget.src !== fallbackMediaUrl) {
+                    e.currentTarget.src = fallbackMediaUrl
+                  }
+                }}
+              />
             ) : (
               <video
                 src={mediaUrl}
@@ -80,6 +92,16 @@ export default function MediaReviewCard({
                 controls
                 preload="metadata"
                 className="h-[420px] w-full bg-black object-cover"
+                onError={(e) => {
+                  if (fallbackMediaUrl && e.currentTarget.src !== fallbackMediaUrl) {
+                    e.currentTarget.src = fallbackMediaUrl
+                  }
+                }}
+                onLoadStart={(e) => {
+                  if (fallbackPosterUrl && !e.currentTarget.poster) {
+                    e.currentTarget.poster = fallbackPosterUrl
+                  }
+                }}
               />
             )}
           </div>
