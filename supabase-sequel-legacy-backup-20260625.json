@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-06-25T18:47:40.234Z",
+  "sequelAlbumLikes": [
+    {
+      "utilizador_id": "51b12906-fc3e-422b-82fa-908bc8ca316a",
+      "conteudo_id": "0ebca2cc-bb0d-4a8a-bb8b-9d2d582981b1",
+      "criado_em": "2026-06-25T15:49:06.595049+00:00",
+      "conteudos": {
+        "id": "0ebca2cc-bb0d-4a8a-bb8b-9d2d582981b1",
+        "tipo": "sequel"
+      }
+    }
+  ],
+  "sequelAlbumPlaylistItems": [
+    {
+      "playlist_id": "ea5a0c66-768c-4f1d-b12b-3e2dd8ba4c2a",
+      "conteudo_id": "0ebca2cc-bb0d-4a8a-bb8b-9d2d582981b1",
+      "conteudos": {
+        "id": "0ebca2cc-bb0d-4a8a-bb8b-9d2d582981b1",
+        "tipo": "sequel"
+      }
+    }
+  ]
+}
